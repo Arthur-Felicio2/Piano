@@ -6,6 +6,8 @@ import android.media.MediaPlayer
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.media.AudioAttributes
+import android.media.SoundPool
 import android.widget.Button
 import android.widget.HorizontalScrollView
 import android.widget.SeekBar
@@ -16,9 +18,10 @@ import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var mediaPlayer: MediaPlayer
 
-    // ... (Suas listas de IDs e sons permanecem exatamente as mesmas)
+    private var mediaPlayer: MediaPlayer? = null
+
+
     private val whiteKeyIds = arrayOf(
         R.id.keyA1, R.id.keyB1, R.id.keyC1, R.id.keyD1, R.id.keyE1, R.id.keyF1, R.id.keyG1,
         R.id.keyA2, R.id.keyB2, R.id.keyC2, R.id.keyD2, R.id.keyE2, R.id.keyF2, R.id.keyG2,
@@ -66,12 +69,10 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
 
-        // ▼▼▼ MODO TELA CHEIA ATUALIZADO ▼▼▼
         WindowCompat.setDecorFitsSystemWindows(window, false)
         val controller = WindowInsetsControllerCompat(window, window.decorView)
         controller.hide(WindowInsetsCompat.Type.systemBars())
         controller.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-        // ▲▲▲ FIM DA ATUALIZAÇÃO ▲▲▲
 
         setContentView(R.layout.activity_main)
 
@@ -94,10 +95,9 @@ class MainActivity : AppCompatActivity() {
         val whiteKeys = whiteKeyIds.mapIndexed { index, keyId ->
             findViewById<Button>(keyId).apply {
                 setOnClickListener {
-                    // ▼▼▼ MUDANÇA DE COR ATUALIZADA ▼▼▼
+
                     setBackgroundColor("#80ffe5".toColorInt())
                     playSound(whiteKeySounds[index])
-                    // ▼▼▼ HANDLER ATUALIZADO ▼▼▼
                     Handler(Looper.getMainLooper()).postDelayed({
                         setBackgroundColor("#FFFFFF".toColorInt()) // Cor branca em Hex
                     }, 100)
@@ -108,10 +108,9 @@ class MainActivity : AppCompatActivity() {
         val blackKeys = blackKeyIds.mapIndexed { index, keyId ->
             findViewById<Button>(keyId).apply {
                 setOnClickListener {
-                    // ▼▼▼ MUDANÇA DE COR ATUALIZADA ▼▼▼
                     setBackgroundColor("#80ffe5".toColorInt())
                     playSound(blackKeySounds[index])
-                    // ▼▼▼ HANDLER ATUALIZADO ▼▼▼
+
                     Handler(Looper.getMainLooper()).postDelayed({
                         setBackgroundColor("#000000".toColorInt()) // Cor preta em Hex
                     }, 100)
@@ -122,25 +121,29 @@ class MainActivity : AppCompatActivity() {
         keys = whiteKeys.toTypedArray() + blackKeys.toTypedArray()
     }
 
+
     private fun playSound(soundResource: Int) {
-        // Liberar o recurso anterior se ele ainda estiver tocando
-        if (::mediaPlayer.isInitialized && mediaPlayer.isPlaying) {
-            mediaPlayer.stop()
-            mediaPlayer.release()
-        }
+
+        mediaPlayer?.stop()
+        mediaPlayer?.release()
 
         mediaPlayer = MediaPlayer.create(this, soundResource)
-        mediaPlayer.start()
 
-        mediaPlayer.setOnCompletionListener {
+        mediaPlayer?.setOnCompletionListener {
             it.release()
+            mediaPlayer = null
         }
+        mediaPlayer?.start()
     }
+
+
+
 
     override fun onDestroy() {
         super.onDestroy()
-        if (::mediaPlayer.isInitialized) {
-            mediaPlayer.release()
-        }
+
+        mediaPlayer?.release()
+        mediaPlayer = null
     }
+
 }
