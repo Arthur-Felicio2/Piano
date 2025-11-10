@@ -3,11 +3,12 @@ package com.example.pianoapp
 import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
 import android.media.AudioAttributes
-import android.media.SoundPool
+import android.media.AudioFormat
+import android.media.AudioTrack
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.view.MotionEvent // <-- IMPORTANTE: Para o toque
+import android.view.MotionEvent
 import android.widget.Button
 import android.widget.HorizontalScrollView
 import android.widget.SeekBar
@@ -16,18 +17,23 @@ import androidx.core.graphics.toColorInt
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import kotlinx.coroutines.*
+import kotlin.math.PI
+import kotlin.math.sin
 
 class MainActivity : AppCompatActivity() {
 
-    // Usando SoundPool para som limpo e rápido
-    private lateinit var soundPool: SoundPool
-    private var soundMap = HashMap<Int, Int>()
+    // --- Mapa para gerenciar os "tracks" de áudio e coroutines ativas ---
+    private val activeTracks = mutableMapOf<Int, Pair<AudioTrack, Job>>()
+    private val audioScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
-    // Handlers para o "release" suave da nota (evita o corte seco e o "repique")
-    private val releaseHandler = Handler(Looper.getMainLooper())
-    private val NOTE_RELEASE_MS = 150L
-    private val pendingStopRunnables = mutableMapOf<Int, Runnable>()
-
+    // --- Constantes de Áudio para Síntese ---
+    private val SAMPLE_RATE = 44100
+    private val BUFFER_SIZE = AudioTrack.getMinBufferSize(
+        SAMPLE_RATE,
+        AudioFormat.CHANNEL_OUT_MONO,
+        AudioFormat.ENCODING_PCM_16BIT
+    )
 
     // --- ARRAYS DE TECLAS BRANCAS NA ORDEM CORRETA (Dó, Ré, Mi...) ---
     private val whiteKeyIds = arrayOf(
@@ -40,20 +46,40 @@ class MainActivity : AppCompatActivity() {
         R.id.keyC7, R.id.keyD7, R.id.keyE7, R.id.keyF7, R.id.keyG7, R.id.keyA7, R.id.keyB7
     )
 
-    // --- ARRAYS DE SONS DAS TECLAS BRANCAS NA ORDEM CORRETA (Dó, Ré, Mi...) ---
-    private val whiteKeySounds = arrayOf(
-        R.raw.c1, R.raw.d1, R.raw.e1, R.raw.f1, R.raw.g1, R.raw.a1, R.raw.b1,
-        R.raw.c2, R.raw.d2, R.raw.e2, R.raw.f2, R.raw.g2, R.raw.a2, R.raw.b2,
-        R.raw.c3, R.raw.d3, R.raw.e3, R.raw.f3, R.raw.g3, R.raw.a3, R.raw.b3,
-        R.raw.c4, R.raw.d4, R.raw.e4, R.raw.f4, R.raw.g4, R.raw.a4, R.raw.b4,
-        R.raw.c5, R.raw.d5, R.raw.e5, R.raw.f5, R.raw.g5, R.raw.a5, R.raw.b5,
-        R.raw.c6, R.raw.d6, R.raw.e6, R.raw.f6, R.raw.g6, R.raw.a6, R.raw.b6,
-        R.raw.c7, R.raw.d7, R.raw.e7, R.raw.f7, R.raw.g7, R.raw.a7, R.raw.b7
+    // --- FREQUÊNCIAS DAS TECLAS BRANCAS (Em Hertz) ---
+    private val whiteKeyFrequencies = doubleArrayOf(
+        32.70, 36.71, 41.20, 43.65, 49.00, 55.00, 61.74, // Oitava 1 (C1 a B1)
+        65.41, 73.42, 82.41, 87.31, 98.00, 110.00, 123.47, // Oitava 2 (C2 a B2)
+        130.81, 146.83, 164.81, 174.61, 196.00, 220.00, 246.94, // Oitava 3 (C3 a B3)
+        261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, // Oitava 4 (C4 a B4)
+        523.25, 587.33, 659.26, 698.46, 783.99, 880.00, 987.77, // Oitava 5 (C5 a B5)
+        1046.50, 1174.66, 1318.51, 1396.91, 1567.98, 1760.00, 1975.53, // Oitava 6 (C6 a B6)
+        2093.00, 2349.32, 2637.02, 2793.83, 3135.96, 3520.00, 3951.07  // Oitava 7 (C7 a B7)
     )
 
-    // --- ARRAYS DAS TECLAS PRETAS REMOVIDOS (conforme solicitado) ---
-    // private val blackKeyIds = ...
-    // private val blackKeySounds = ...
+    // --- [NOVO] ARRAYS DE TECLAS PRETAS (C#, D#, F#, G#, A#) ---
+    // (Verifique se esses R.id's batem com seu layout XML)
+    private val blackKeyIds = arrayOf(
+        R.id.keyCs1, R.id.keyDs1, R.id.keyFs1, R.id.keyGs1, R.id.keyAs1,
+        R.id.keyCs2, R.id.keyDs2, R.id.keyFs2, R.id.keyGs2, R.id.keyAs2,
+        R.id.keyCs3, R.id.keyDs3, R.id.keyFs3, R.id.keyGs3, R.id.keyAs3,
+        R.id.keyCs4, R.id.keyDs4, R.id.keyFs4, R.id.keyGs4, R.id.keyAs4,
+        R.id.keyCs5, R.id.keyDs5, R.id.keyFs5, R.id.keyGs5, R.id.keyAs5,
+        R.id.keyCs6, R.id.keyDs6, R.id.keyFs6, R.id.keyGs6, R.id.keyAs6,
+        R.id.keyCs7, R.id.keyDs7, R.id.keyFs7, R.id.keyGs7, R.id.keyAs7
+    )
+
+    // --- [NOVO] FREQUÊNCIAS DAS TECLAS PRETAS (Em Hertz) ---
+    private val blackKeyFrequencies = doubleArrayOf(
+        34.65, 38.89, 46.25, 51.91, 58.27, // Oitava 1 (C#1 a A#1)
+        69.30, 77.78, 92.50, 103.83, 116.54, // Oitava 2
+        138.59, 155.56, 185.00, 207.65, 233.08, // Oitava 3
+        277.18, 311.13, 369.99, 415.30, 466.16, // Oitava 4
+        554.37, 622.25, 739.99, 830.61, 932.33, // Oitava 5
+        1108.73, 1244.51, 1479.98, 1661.22, 1864.66, // Oitava 6
+        2217.46, 2489.02, 2959.96, 3322.44, 3729.31  // Oitava 7
+    )
+
 
     private lateinit var keys: Array<Button>
 
@@ -69,20 +95,7 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(R.layout.activity_main)
 
-        // --- Configuração do SoundPool ---
-        val audioAttributes = AudioAttributes.Builder()
-            .setUsage(AudioAttributes.USAGE_GAME)
-            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-            .build()
-
-        soundPool = SoundPool.Builder()
-            .setMaxStreams(16)
-            .setAudioAttributes(audioAttributes)
-            .build()
-
-        loadSounds() // Carrega apenas os sons das teclas brancas
-
-        // --- Configuração do Scroll e SeekBar ---
+        // --- Configuração do Scroll e SeekBar (Original) ---
         val seekBar = findViewById<SeekBar>(R.id.seekBar)
         val scrollView = findViewById<HorizontalScrollView>(R.id.scrollView)
         scrollView.post { scrollView.scrollTo((scrollView.getChildAt(0).width * 0.55).toInt(), 0) }
@@ -98,39 +111,38 @@ class MainActivity : AppCompatActivity() {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         })
 
-        // --- Configuração das Teclas Brancas (com setOnTouchListener) ---
+        // --- Configuração das Teclas Brancas (com AudioTrack) ---
         val whiteKeys = whiteKeyIds.mapIndexed { index, keyId ->
             findViewById<Button>(keyId).apply {
                 setOnTouchListener { view, event ->
+                    val frequency = whiteKeyFrequencies[index]
+
                     when (event.action) {
                         MotionEvent.ACTION_DOWN -> {
-                            // Cancela qualquer "stop" pendente para esta tecla (evita "repique")
-                            pendingStopRunnables[view.id]?.let {
-                                releaseHandler.removeCallbacks(it)
+                            if (activeTracks[view.id] == null) {
+                                val audioTrack = createAudioTrack()
+                                val job = audioScope.launch {
+                                    playNote(audioTrack, frequency)
+                                }
+                                activeTracks[view.id] = Pair(audioTrack, job)
+                                setBackgroundColor("#80ffe5".toColorInt())
                             }
-                            pendingStopRunnables.remove(view.id)
-
-                            // Toca o som imediatamente e guarda o ID do stream
-                            val streamId = playSound(whiteKeySounds[index])
-                            view.tag = streamId
-                            setBackgroundColor("#80ffe5".toColorInt())
                             true
                         }
                         MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                            // Pega o ID do stream
-                            val streamId = (view.tag as? Int) ?: return@setOnTouchListener false
-
-                            // Cria o comando "stop"
-                            val stopRunnable = Runnable {
-                                soundPool.stop(streamId)
-                                pendingStopRunnables.remove(view.id) // Limpa o mapa
+                            val activeTrack = activeTracks[view.id]
+                            if (activeTrack != null) {
+                                activeTrack.second.cancel()
+                                val track = activeTrack.first
+                                track.setVolume(0.0f)
+                                Handler(Looper.getMainLooper()).postDelayed({
+                                    if (track.playState == AudioTrack.PLAYSTATE_PLAYING) {
+                                        track.stop()
+                                    }
+                                    track.release()
+                                }, 50)
+                                activeTracks.remove(view.id)
                             }
-
-                            // Armazena e agenda o comando de "stop" atrasado (simula "release")
-                            pendingStopRunnables[view.id] = stopRunnable
-                            releaseHandler.postDelayed(stopRunnable, NOTE_RELEASE_MS)
-
-                            view.tag = null
                             setBackgroundColor("#FFFFFF".toColorInt())
                             true
                         }
@@ -140,36 +152,129 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // --- Configuração das Teclas Pretas REMOVIDA ---
-        // val blackKeys = ...
+        // --- [NOVO] Configuração das Teclas Pretas (com AudioTrack) ---
+        val blackKeys = blackKeyIds.mapIndexed { index, keyId ->
+            findViewById<Button>(keyId).apply {
+                setOnTouchListener { view, event ->
+                    val frequency = blackKeyFrequencies[index] // Usa as frequências pretas
 
-        // O array de teclas agora contém apenas as brancas
-        keys = whiteKeys.toTypedArray()
-    }
+                    when (event.action) {
+                        MotionEvent.ACTION_DOWN -> {
+                            if (activeTracks[view.id] == null) {
+                                val audioTrack = createAudioTrack()
+                                val job = audioScope.launch {
+                                    playNote(audioTrack, frequency)
+                                }
+                                activeTracks[view.id] = Pair(audioTrack, job)
 
-    // Carrega apenas os sons das teclas brancas
-    private fun loadSounds() {
-        whiteKeySounds.forEach { soundResource ->
-            val soundId = soundPool.load(this, soundResource, 1)
-            soundMap[soundResource] = soundId
+                                // Cor de "pressionado" (pode ser a mesma ou outra)
+                                setBackgroundColor("#80ffe5".toColorInt())
+                            }
+                            true
+                        }
+                        MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                            val activeTrack = activeTracks[view.id]
+                            if (activeTrack != null) {
+                                activeTrack.second.cancel()
+                                val track = activeTrack.first
+                                track.setVolume(0.0f)
+                                Handler(Looper.getMainLooper()).postDelayed({
+                                    if (track.playState == AudioTrack.PLAYSTATE_PLAYING) {
+                                        track.stop()
+                                    }
+                                    track.release()
+                                }, 50)
+                                activeTracks.remove(view.id)
+                            }
+
+                            // Retorna para a cor preta
+                            setBackgroundColor("#000000".toColorInt())
+                            true
+                        }
+                        else -> false
+                    }
+                }
+            }
         }
-        // Loop de blackKeySounds removido
+
+        // O array de teclas agora contém TODAS as teclas (brancas e pretas)
+        keys = (whiteKeys + blackKeys).toTypedArray()
     }
 
-    // Função playSound do SoundPool (retorna o streamID)
-    private fun playSound(soundResource: Int): Int {
-        val soundId = soundMap[soundResource] ?: 0
-        return if (soundId != 0) {
-            soundPool.play(soundId, 1.0f, 1.0f, 1, 0, 1.0f)
-        } else {
-            0
+    // --- Funções de Síntese (AudioTrack) ---
+
+    /**
+     * Cria um AudioTrack configurado para streaming de áudio.
+     */
+    private fun createAudioTrack(): AudioTrack {
+        return AudioTrack.Builder()
+            .setAudioAttributes(
+                AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_GAME)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build()
+            )
+            .setAudioFormat(
+                AudioFormat.Builder()
+                    .setEncoding(AudioFormat.ENCODING_PCM_16BIT)
+                    .setSampleRate(SAMPLE_RATE)
+                    .setChannelMask(AudioFormat.CHANNEL_OUT_MONO)
+                    .build()
+            )
+            .setBufferSizeInBytes(BUFFER_SIZE)
+            .setTransferMode(AudioTrack.MODE_STREAM)
+            .build()
+    }
+
+    /**
+     * Coroutine que gera uma onda senoidal e a escreve no AudioTrack.
+     * Continua em loop (isActive) até que o Job seja cancelado.
+     */
+    private fun CoroutineScope.playNote(track: AudioTrack, frequency: Double) {
+        val buffer = ShortArray(BUFFER_SIZE / 2) // /2 pois é Short (16-bit)
+        var phase = 0.0
+
+        track.play()
+
+        while (isActive) {
+            // Gera a onda senoidal
+            for (i in buffer.indices) {
+                // sin(2 * PI * phase * freq / sampleRate)
+                val sinValue = sin(2.0 * PI * phase * frequency / SAMPLE_RATE)
+                buffer[i] = (sinValue * Short.MAX_VALUE).toInt().toShort()
+                phase++
+
+                // Reseta a fase para evitar overflow e manter a precisão
+                if (phase * frequency / SAMPLE_RATE > 1.0) {
+                    phase = 0.0
+                }
+            }
+
+            // Escreve os dados no buffer do AudioTrack
+            track.write(buffer, 0, buffer.size)
+        }
+
+        // Quando o loop termina (job cancelado), paramos o track
+        // (O stop/release principal é feito no postDelayed)
+        if (track.playState == AudioTrack.PLAYSTATE_PLAYING) {
+            track.pause() // Pausa suave antes do stop/release no Handler
         }
     }
+
 
     override fun onDestroy() {
         super.onDestroy()
-        // Limpa o SoundPool e o Handler
-        releaseHandler.removeCallbacksAndMessages(null)
-        soundPool.release()
+        // Cancela todas as coroutines de áudio
+        audioScope.cancel()
+
+        // Libera todos os AudioTracks que possam estar ativos
+        activeTracks.values.forEach { (track, job) ->
+            job.cancel() // Garante que a coroutine parou
+            if (track.playState == AudioTrack.PLAYSTATE_PLAYING) {
+                track.stop()
+            }
+            track.release()
+        }
+        activeTracks.clear()
     }
 }
