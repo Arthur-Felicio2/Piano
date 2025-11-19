@@ -5,196 +5,190 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
+    android:background="#1B1B1B"
     tools:context=".MainActivity">
 
- <!-- Cabeçalho -->
- <LinearLayout
+ <RelativeLayout
      android:layout_weight="1"
-     android:orientation="vertical"
+     android:background="#272727"
      android:layout_width="match_parent"
      android:layout_height="0dp">
 
-  <LinearLayout
-      android:layout_weight="1"
-      android:background="#272727"
+  <TextView
+      android:id="@+id/tvTitle"
+      android:textColor="#FFB300"
+      android:text="ARCADE PIANO - Pressione para Tocar!"
+      android:textAlignment="center"
+      android:textSize="24sp"
+      android:gravity="center"
+      android:textStyle="bold"
+      android:shadowColor="#00FF00"
+      android:shadowDx="1"
+      android:shadowDy="1"
+      android:shadowRadius="2"
       android:layout_width="match_parent"
-      android:layout_height="0dp">
+      android:layout_height="wrap_content"
+      android:layout_marginTop="8dp"/>
 
-   <TextView
-       android:textColor="@color/white"
-       android:text="My Piano"
-       android:textAlignment="center"
-       android:textSize="36dp"
-       android:gravity="center"
+  <LinearLayout
+      android:id="@+id/controlsLayout"
+      android:orientation="horizontal"
+      android:layout_below="@id/tvTitle"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:paddingStart="16dp"
+      android:paddingEnd="16dp">
+
+   <Button
+       android:id="@+id/playMusicButton"
+       android:layout_width="0dp"
+       android:layout_height="match_parent"
+       android:layout_weight="1"
+       android:layout_margin="10dp"
+       android:backgroundTint="#00BFFF"
+       android:text="🤖 MENU MÚSICA"
+       android:textColor="@color/black"
        android:textStyle="bold"
-       android:layout_width="match_parent"
-       android:layout_height="match_parent" />
-  </LinearLayout>
-
-  <LinearLayout
-      android:layout_weight="1"
-      android:background="#272727"
-      android:layout_width="match_parent"
-      android:layout_height="0dp">
+       android:textSize="14sp" />
 
    <SeekBar
        android:id="@+id/seekBar"
-       android:background="@drawable/scrollbgm"
-       android:thumb="@drawable/thumb"
-       android:progressDrawable="@android:color/transparent"
-       android:layout_marginLeft="100dp"
-       android:layout_marginRight="100dp"
-       android:layout_marginTop="10dp"
-       android:layout_marginBottom="10dp"
-       android:layout_width="match_parent"
+       android:layout_width="0dp"
        android:layout_height="match_parent"
+       android:layout_weight="3"
+       android:layout_margin="10dp"
+       android:thumbTint="#FF00FF"
+       android:progressTint="#FF00FF"
+       android:layout_gravity="center_vertical"
        android:max="100"
        android:progress="50" />
-
   </LinearLayout>
- </LinearLayout>
+ </RelativeLayout>
 
- <!-- Teclado -->
  <HorizontalScrollView
      android:id="@+id/scrollView"
      android:layout_width="match_parent"
      android:layout_height="0dp"
-     android:layout_weight="2">
+     android:layout_weight="3"
+     android:background="@color/black">
 
   <RelativeLayout
-      android:id="@+id/parentLayoutvv"
-      android:layout_width="match_parent"
+      android:id="@+id/pianoLayout"
+      android:layout_width="wrap_content"
       android:layout_height="match_parent"
       android:orientation="horizontal">
 
-   <!-- TECLAS BRANCAS -->
    <LinearLayout
        android:id="@+id/whiteKeysLayout"
-       android:background="@color/black"
        android:orientation="horizontal"
-       android:layout_width="match_parent"
+       android:layout_width="wrap_content"
        android:layout_height="match_parent">
 
-    <!-- Oitava 1 -->
-    <Button android:id="@+id/keyC1" style="@style/KeyButtonStyle" android:text="C1" />
-    <Button android:id="@+id/keyD1" style="@style/KeyButtonStyle" android:text="D1" />
-    <Button android:id="@+id/keyE1" style="@style/KeyButtonStyle" android:text="E1" />
-    <Button android:id="@+id/keyF1" style="@style/KeyButtonStyle" android:text="F1" />
-    <Button android:id="@+id/keyG1" style="@style/KeyButtonStyle" android:text="G1" />
-    <Button android:id="@+id/keyA1" style="@style/KeyButtonStyle" android:text="A1" />
-    <Button android:id="@+id/keyB1" style="@style/KeyButtonStyle" android:text="B1" />
+    <Button android:id="@+id/keyC1" style="@style/ArcadeKeyWhiteStyle" android:text="C1" />
+    <Button android:id="@+id/keyD1" style="@style/ArcadeKeyWhiteStyle" android:text="D1" />
+    <Button android:id="@+id/keyE1" style="@style/ArcadeKeyWhiteStyle" android:text="E1" />
+    <Button android:id="@+id/keyF1" style="@style/ArcadeKeyWhiteStyle" android:text="F1" />
+    <Button android:id="@+id/keyG1" style="@style/ArcadeKeyWhiteStyle" android:text="G1" />
+    <Button android:id="@+id/keyA1" style="@style/ArcadeKeyWhiteStyle" android:text="A1" />
+    <Button android:id="@+id/keyB1" style="@style/ArcadeKeyWhiteStyle" android:text="B1" />
 
-    <!-- Oitava 2 -->
-    <Button android:id="@+id/keyC2" style="@style/KeyButtonStyle" android:text="C2" />
-    <Button android:id="@+id/keyD2" style="@style/KeyButtonStyle" android:text="D2" />
-    <Button android:id="@+id/keyE2" style="@style/KeyButtonStyle" android:text="E2" />
-    <Button android:id="@+id/keyF2" style="@style/KeyButtonStyle" android:text="F2" />
-    <Button android:id="@+id/keyG2" style="@style/KeyButtonStyle" android:text="G2" />
-    <Button android:id="@+id/keyA2" style="@style/KeyButtonStyle" android:text="A2" />
-    <Button android:id="@+id/keyB2" style="@style/KeyButtonStyle" android:text="B2" />
+    <Button android:id="@+id/keyC2" style="@style/ArcadeKeyWhiteStyle" android:text="C2" />
+    <Button android:id="@+id/keyD2" style="@style/ArcadeKeyWhiteStyle" android:text="D2" />
+    <Button android:id="@+id/keyE2" style="@style/ArcadeKeyWhiteStyle" android:text="E2" />
+    <Button android:id="@+id/keyF2" style="@style/ArcadeKeyWhiteStyle" android:text="F2" />
+    <Button android:id="@+id/keyG2" style="@style/ArcadeKeyWhiteStyle" android:text="G2" />
+    <Button android:id="@+id/keyA2" style="@style/ArcadeKeyWhiteStyle" android:text="A2" />
+    <Button android:id="@+id/keyB2" style="@style/ArcadeKeyWhiteStyle" android:text="B2" />
 
-    <!-- Oitava 3 -->
-    <Button android:id="@+id/keyC3" style="@style/KeyButtonStyle" android:text="C3" />
-    <Button android:id="@+id/keyD3" style="@style/KeyButtonStyle" android:text="D3" />
-    <Button android:id="@+id/keyE3" style="@style/KeyButtonStyle" android:text="E3" />
-    <Button android:id="@+id/keyF3" style="@style/KeyButtonStyle" android:text="F3" />
-    <Button android:id="@+id/keyG3" style="@style/KeyButtonStyle" android:text="G3" />
-    <Button android:id="@+id/keyA3" style="@style/KeyButtonStyle" android:text="A3" />
-    <Button android:id="@+id/keyB3" style="@style/KeyButtonStyle" android:text="B3" />
+    <Button android:id="@+id/keyC3" style="@style/ArcadeKeyWhiteStyle" android:text="C3" />
+    <Button android:id="@+id/keyD3" style="@style/ArcadeKeyWhiteStyle" android:text="D3" />
+    <Button android:id="@+id/keyE3" style="@style/ArcadeKeyWhiteStyle" android:text="E3" />
+    <Button android:id="@+id/keyF3" style="@style/ArcadeKeyWhiteStyle" android:text="F3" />
+    <Button android:id="@+id/keyG3" style="@style/ArcadeKeyWhiteStyle" android:text="G3" />
+    <Button android:id="@+id/keyA3" style="@style/ArcadeKeyWhiteStyle" android:text="A3" />
+    <Button android:id="@+id/keyB3" style="@style/ArcadeKeyWhiteStyle" android:text="B3" />
 
-    <!-- Oitava 4 -->
-    <Button android:id="@+id/keyC4" style="@style/KeyButtonStyle" android:text="C4" />
-    <Button android:id="@+id/keyD4" style="@style/KeyButtonStyle" android:text="D4" />
-    <Button android:id="@+id/keyE4" style="@style/KeyButtonStyle" android:text="E4" />
-    <Button android:id="@+id/keyF4" style="@style/KeyButtonStyle" android:text="F4" />
-    <Button android:id="@+id/keyG4" style="@style/KeyButtonStyle" android:text="G4" />
-    <Button android:id="@+id/keyA4" style="@style/KeyButtonStyle" android:text="A4" />
-    <Button android:id="@+id/keyB4" style="@style/KeyButtonStyle" android:text="B4" />
+    <Button android:id="@+id/keyC4" style="@style/ArcadeKeyWhiteStyle" android:text="C4" />
+    <Button android:id="@+id/keyD4" style="@style/ArcadeKeyWhiteStyle" android:text="D4" />
+    <Button android:id="@+id/keyE4" style="@style/ArcadeKeyWhiteStyle" android:text="E4" />
+    <Button android:id="@+id/keyF4" style="@style/ArcadeKeyWhiteStyle" android:text="F4" />
+    <Button android:id="@+id/keyG4" style="@style/ArcadeKeyWhiteStyle" android:text="G4" />
+    <Button android:id="@+id/keyA4" style="@style/ArcadeKeyWhiteStyle" android:text="A4" />
+    <Button android:id="@+id/keyB4" style="@style/ArcadeKeyWhiteStyle" android:text="B4" />
 
-    <!-- Oitava 5 -->
-    <Button android:id="@+id/keyC5" style="@style/KeyButtonStyle" android:text="C5" />
-    <Button android:id="@+id/keyD5" style="@style/KeyButtonStyle" android:text="D5" />
-    <Button android:id="@+id/keyE5" style="@style/KeyButtonStyle" android:text="E5" />
-    <Button android:id="@+id/keyF5" style="@style/KeyButtonStyle" android:text="F5" />
-    <Button android:id="@+id/keyG5" style="@style/KeyButtonStyle" android:text="G5" />
-    <Button android:id="@+id/keyA5" style="@style/KeyButtonStyle" android:text="A5" />
-    <Button android:id="@+id/keyB5" style="@style/KeyButtonStyle" android:text="B5" />
+    <Button android:id="@+id/keyC5" style="@style/ArcadeKeyWhiteStyle" android:text="C5" />
+    <Button android:id="@+id/keyD5" style="@style/ArcadeKeyWhiteStyle" android:text="D5" />
+    <Button android:id="@+id/keyE5" style="@style/ArcadeKeyWhiteStyle" android:text="E5" />
+    <Button android:id="@+id/keyF5" style="@style/ArcadeKeyWhiteStyle" android:text="F5" />
+    <Button android:id="@+id/keyG5" style="@style/ArcadeKeyWhiteStyle" android:text="G5" />
+    <Button android:id="@+id/keyA5" style="@style/ArcadeKeyWhiteStyle" android:text="A5" />
+    <Button android:id="@+id/keyB5" style="@style/ArcadeKeyWhiteStyle" android:text="B5" />
 
-    <!-- Oitava 6 -->
-    <Button android:id="@+id/keyC6" style="@style/KeyButtonStyle" android:text="C6" />
-    <Button android:id="@+id/keyD6" style="@style/KeyButtonStyle" android:text="D6" />
-    <Button android:id="@+id/keyE6" style="@style/KeyButtonStyle" android:text="E6" />
-    <Button android:id="@+id/keyF6" style="@style/KeyButtonStyle" android:text="F6" />
-    <Button android:id="@+id/keyG6" style="@style/KeyButtonStyle" android:text="G6" />
-    <Button android:id="@+id/keyA6" style="@style/KeyButtonStyle" android:text="A6" />
-    <Button android:id="@+id/keyB6" style="@style/KeyButtonStyle" android:text="B6" />
+    <Button android:id="@+id/keyC6" style="@style/ArcadeKeyWhiteStyle" android:text="C6" />
+    <Button android:id="@+id/keyD6" style="@style/ArcadeKeyWhiteStyle" android:text="D6" />
+    <Button android:id="@+id/keyE6" style="@style/ArcadeKeyWhiteStyle" android:text="E6" />
+    <Button android:id="@+id/keyF6" style="@style/ArcadeKeyWhiteStyle" android:text="F6" />
+    <Button android:id="@+id/keyG6" style="@style/ArcadeKeyWhiteStyle" android:text="G6" />
+    <Button android:id="@+id/keyA6" style="@style/ArcadeKeyWhiteStyle" android:text="A6" />
+    <Button android:id="@+id/keyB6" style="@style/ArcadeKeyWhiteStyle" android:text="B6" />
 
-    <!-- Oitava 7 -->
-    <Button android:id="@+id/keyC7" style="@style/KeyButtonStyle" android:text="C7" />
-    <Button android:id="@+id/keyD7" style="@style/KeyButtonStyle" android:text="D7" />
-    <Button android:id="@+id/keyE7" style="@style/KeyButtonStyle" android:text="E7" />
-    <Button android:id="@+id/keyF7" style="@style/KeyButtonStyle" android:text="F7" />
-    <Button android:id="@+id/keyG7" style="@style/KeyButtonStyle" android:text="G7" />
-    <Button android:id="@+id/keyA7" style="@style/KeyButtonStyle" android:text="A7" />
-    <Button android:id="@+id/keyB7" style="@style/KeyButtonStyle" android:text="B7" />
+    <Button android:id="@+id/keyC7" style="@style/ArcadeKeyWhiteStyle" android:text="C7" />
+    <Button android:id="@+id/keyD7" style="@style/ArcadeKeyWhiteStyle" android:text="D7" />
+    <Button android:id="@+id/keyE7" style="@style/ArcadeKeyWhiteStyle" android:text="E7" />
+    <Button android:id="@+id/keyF7" style="@style/ArcadeKeyWhiteStyle" android:text="F7" />
+    <Button android:id="@+id/keyG7" style="@style/ArcadeKeyWhiteStyle" android:text="G7" />
+    <Button android:id="@+id/keyA7" style="@style/ArcadeKeyWhiteStyle" android:text="A7" />
+    <Button android:id="@+id/keyB7" style="@style/ArcadeKeyWhiteStyle" android:text="B7" />
 
    </LinearLayout>
 
-   <!-- TECLAS PRETAS -->
    <LinearLayout
        android:id="@+id/blackKeysLayout"
        android:orientation="horizontal"
-       android:layout_width="match_parent"
+       android:layout_width="wrap_content"
        android:layout_height="180dp">
 
-    <!-- Oitava 1 -->
-    <Button android:id="@+id/keyCs1" android:layout_marginStart="52dp" style="@style/SharpkeyButtonStyle" />
-    <Button android:id="@+id/keyDs1" android:layout_marginStart="22dp" style="@style/SharpkeyButtonStyle" />
-    <Button android:id="@+id/keyFs1" android:layout_marginStart="101dp" style="@style/SharpkeyButtonStyle" />
-    <Button android:id="@+id/keyGs1" android:layout_marginStart="25dp" style="@style/SharpkeyButtonStyle" />
-    <Button android:id="@+id/keyAs1" android:layout_marginStart="26dp" style="@style/SharpkeyButtonStyle" />
+    <Button android:id="@+id/keyCs1" android:layout_marginStart="52dp" style="@style/ArcadeKeyBlackStyle" />
+    <Button android:id="@+id/keyDs1" android:layout_marginStart="22dp" style="@style/ArcadeKeyBlackStyle" />
+    <Button android:id="@+id/keyFs1" android:layout_marginStart="101dp" style="@style/ArcadeKeyBlackStyle" />
+    <Button android:id="@+id/keyGs1" android:layout_marginStart="25dp" style="@style/ArcadeKeyBlackStyle" />
+    <Button android:id="@+id/keyAs1" android:layout_marginStart="26dp" style="@style/ArcadeKeyBlackStyle" />
 
-    <!-- Oitava 2 -->
-    <Button android:id="@+id/keyCs2" android:layout_marginStart="52dp" style="@style/SharpkeyButtonStyle" />
-    <Button android:id="@+id/keyDs2" android:layout_marginStart="22dp" style="@style/SharpkeyButtonStyle" />
-    <Button android:id="@+id/keyFs2" android:layout_marginStart="101dp" style="@style/SharpkeyButtonStyle" />
-    <Button android:id="@+id/keyGs2" android:layout_marginStart="25dp" style="@style/SharpkeyButtonStyle" />
-    <Button android:id="@+id/keyAs2" android:layout_marginStart="26dp" style="@style/SharpkeyButtonStyle" />
+    <Button android:id="@+id/keyCs2" android:layout_marginStart="52dp" style="@style/ArcadeKeyBlackStyle" />
+    <Button android:id="@+id/keyDs2" android:layout_marginStart="22dp" style="@style/ArcadeKeyBlackStyle" />
+    <Button android:id="@+id/keyFs2" android:layout_marginStart="101dp" style="@style/ArcadeKeyBlackStyle" />
+    <Button android:id="@+id/keyGs2" android:layout_marginStart="25dp" style="@style/ArcadeKeyBlackStyle" />
+    <Button android:id="@+id/keyAs2" android:layout_marginStart="26dp" style="@style/ArcadeKeyBlackStyle" />
 
-    <!-- Oitava 3 -->
-    <Button android:id="@+id/keyCs3" android:layout_marginStart="52dp" style="@style/SharpkeyButtonStyle" />
-    <Button android:id="@+id/keyDs3" android:layout_marginStart="22dp" style="@style/SharpkeyButtonStyle" />
-    <Button android:id="@+id/keyFs3" android:layout_marginStart="101dp" style="@style/SharpkeyButtonStyle" />
-    <Button android:id="@+id/keyGs3" android:layout_marginStart="25dp" style="@style/SharpkeyButtonStyle" />
-    <Button android:id="@+id/keyAs3" android:layout_marginStart="26dp" style="@style/SharpkeyButtonStyle" />
+    <Button android:id="@+id/keyCs3" android:layout_marginStart="52dp" style="@style/ArcadeKeyBlackStyle" />
+    <Button android:id="@+id/keyDs3" android:layout_marginStart="22dp" style="@style/ArcadeKeyBlackStyle" />
+    <Button android:id="@+id/keyFs3" android:layout_marginStart="101dp" style="@style/ArcadeKeyBlackStyle" />
+    <Button android:id="@+id/keyGs3" android:layout_marginStart="25dp" style="@style/ArcadeKeyBlackStyle" />
+    <Button android:id="@+id/keyAs3" android:layout_marginStart="26dp" style="@style/ArcadeKeyBlackStyle" />
 
-    <!-- Oitava 4 -->
-    <Button android:id="@+id/keyCs4" android:layout_marginStart="52dp" style="@style/SharpkeyButtonStyle" />
-    <Button android:id="@+id/keyDs4" android:layout_marginStart="22dp" style="@style/SharpkeyButtonStyle" />
-    <Button android:id="@+id/keyFs4" android:layout_marginStart="101dp" style="@style/SharpkeyButtonStyle" />
-    <Button android:id="@+id/keyGs4" android:layout_marginStart="25dp" style="@style/SharpkeyButtonStyle" />
-    <Button android:id="@+id/keyAs4" android:layout_marginStart="26dp" style="@style/SharpkeyButtonStyle" />
+    <Button android:id="@+id/keyCs4" android:layout_marginStart="52dp" style="@style/ArcadeKeyBlackStyle" />
+    <Button android:id="@+id/keyDs4" android:layout_marginStart="22dp" style="@style/ArcadeKeyBlackStyle" />
+    <Button android:id="@+id/keyFs4" android:layout_marginStart="101dp" style="@style/ArcadeKeyBlackStyle" />
+    <Button android:id="@+id/keyGs4" android:layout_marginStart="25dp" style="@style/ArcadeKeyBlackStyle" />
+    <Button android:id="@+id/keyAs4" android:layout_marginStart="26dp" style="@style/ArcadeKeyBlackStyle" />
 
-    <!-- Oitava 5 -->
-    <Button android:id="@+id/keyCs5" android:layout_marginStart="52dp" style="@style/SharpkeyButtonStyle" />
-    <Button android:id="@+id/keyDs5" android:layout_marginStart="22dp" style="@style/SharpkeyButtonStyle" />
-    <Button android:id="@+id/keyFs5" android:layout_marginStart="101dp" style="@style/SharpkeyButtonStyle" />
-    <Button android:id="@+id/keyGs5" android:layout_marginStart="25dp" style="@style/SharpkeyButtonStyle" />
-    <Button android:id="@+id/keyAs5" android:layout_marginStart="26dp" style="@style/SharpkeyButtonStyle" />
+    <Button android:id="@+id/keyCs5" android:layout_marginStart="52dp" style="@style/ArcadeKeyBlackStyle" />
+    <Button android:id="@+id/keyDs5" android:layout_marginStart="22dp" style="@style/ArcadeKeyBlackStyle" />
+    <Button android:id="@+id/keyFs5" android:layout_marginStart="101dp" style="@style/ArcadeKeyBlackStyle" />
+    <Button android:id="@+id/keyGs5" android:layout_marginStart="25dp" style="@style/ArcadeKeyBlackStyle" />
+    <Button android:id="@+id/keyAs5" android:layout_marginStart="26dp" style="@style/ArcadeKeyBlackStyle" />
 
-    <!-- Oitava 6 -->
-    <Button android:id="@+id/keyCs6" android:layout_marginStart="52dp" style="@style/SharpkeyButtonStyle" />
-    <Button android:id="@+id/keyDs6" android:layout_marginStart="22dp" style="@style/SharpkeyButtonStyle" />
-    <Button android:id="@+id/keyFs6" android:layout_marginStart="101dp" style="@style/SharpkeyButtonStyle" />
-    <Button android:id="@+id/keyGs6" android:layout_marginStart="25dp" style="@style/SharpkeyButtonStyle" />
-    <Button android:id="@+id/keyAs6" android:layout_marginStart="26dp" style="@style/SharpkeyButtonStyle" />
+    <Button android:id="@+id/keyCs6" android:layout_marginStart="52dp" style="@style/ArcadeKeyBlackStyle" />
+    <Button android:id="@+id/keyDs6" android:layout_marginStart="22dp" style="@style/ArcadeKeyBlackStyle" />
+    <Button android:id="@+id/keyFs6" android:layout_marginStart="101dp" style="@style/ArcadeKeyBlackStyle" />
+    <Button android:id="@+id/keyGs6" android:layout_marginStart="25dp" style="@style/ArcadeKeyBlackStyle" />
+    <Button android:id="@+id/keyAs6" android:layout_marginStart="26dp" style="@style/ArcadeKeyBlackStyle" />
 
-    <!-- Oitava 7 -->
-    <Button android:id="@+id/keyCs7" android:layout_marginStart="52dp" style="@style/SharpkeyButtonStyle" />
-    <Button android:id="@+id/keyDs7" android:layout_marginStart="22dp" style="@style/SharpkeyButtonStyle" />
-    <Button android:id="@+id/keyFs7" android:layout_marginStart="101dp" style="@style/SharpkeyButtonStyle" />
-    <Button android:id="@+id/keyGs7" android:layout_marginStart="25dp" style="@style/SharpkeyButtonStyle" />
-    <Button android:id="@+id/keyAs7" android:layout_marginStart="26dp" style="@style/SharpkeyButtonStyle" />
+    <Button android:id="@+id/keyCs7" android:layout_marginStart="52dp" style="@style/ArcadeKeyBlackStyle" />
+    <Button android:id="@+id/keyDs7" android:layout_marginStart="22dp" style="@style/ArcadeKeyBlackStyle" />
+    <Button android:id="@+id/keyFs7" android:layout_marginStart="101dp" style="@style/ArcadeKeyBlackStyle" />
+    <Button android:id="@+id/keyGs7" android:layout_marginStart="25dp" style="@style/ArcadeKeyBlackStyle" />
+    <Button android:id="@+id/keyAs7" android:layout_marginStart="26dp" style="@style/ArcadeKeyBlackStyle" />
 
    </LinearLayout>
   </RelativeLayout>
